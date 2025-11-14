@@ -80,6 +80,31 @@ class ShoppingCart:
         return f"Total weight of the items: {total_weight} kg"
 
 
+#######################################################################################
+# Optional
+# Recommendation system
+def product_recommendation(carts: list[ShoppingCart]) -> str:
+    following_products = {}
+    for cart in carts:
+        products = cart.products
+        for i in range(len(products) - 1):
+            current_product = products[i]
+            next_product = products[i + 1]
+            if current_product.display_basic_info() not in following_products:
+                following_products[current_product.display_basic_info()] = {}
+            if next_product.display_basic_info() not in following_products[current_product.display_basic_info()]:
+                following_products[current_product.display_basic_info()][next_product.display_basic_info()] = 0
+            following_products[current_product.display_basic_info()][next_product.display_basic_info()] += 1
+
+    recommendations = {}
+    for product, following in following_products.items():
+        recommended_product = max(following, key=following.get)
+        recommendations[product] = recommended_product
+
+    for product, recommended in recommendations.items():
+        return f"Customers who bought {product} also bought {recommended}"
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     book = Book(product_id=1, price=29.99, title="The book title", author="The book author",
@@ -99,4 +124,13 @@ if __name__ == '__main__':
     print(cart.total_price())
     print(cart.total_weight())
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    book2 = Book(product_id=4, price=39.99, title="Another book title", author="Another book author",
+                 number_of_pages=250, weight_in_kg=0.7)
+
+    cart2 = ShoppingCart()
+    cart2.add_product(book)
+    cart2.add_product(book2)
+    cart2.add_product(album)
+
+    carts = [cart, cart2]
+    print(product_recommendation(carts))
